@@ -1,0 +1,87 @@
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "Home";
+    string Active(string name) => controller.Equals(name, StringComparison.OrdinalIgnoreCase) ? "active" : string.Empty;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#172554" />
+    <title>@ViewData["Title"] · RailFlow</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar" id="appSidebar">
+            <div class="brand-block">
+                <a asp-controller="Home" asp-action="Index" class="brand-mark" aria-label="RailFlow home">
+                    <span class="brand-icon"><i class="bi bi-train-front-fill"></i></span>
+                    <span><strong>RailFlow</strong><small>Personal travel manager</small></span>
+                </a>
+                <button class="icon-button sidebar-close d-lg-none" type="button" data-sidebar-close aria-label="Close navigation">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav" aria-label="Primary navigation">
+                <p class="nav-caption">Workspace</p>
+                <a class="nav-link @Active("Home")" asp-controller="Home" asp-action="Index"><i class="bi bi-grid-1x2-fill"></i><span>Overview</span></a>
+                <a class="nav-link @Active("Booking")" asp-controller="Booking" asp-action="Index"><i class="bi bi-ticket-perforated-fill"></i><span>Bookings</span></a>
+                <a class="nav-link @Active("Schedule")" asp-controller="Schedule" asp-action="Index"><i class="bi bi-signpost-split-fill"></i><span>Schedules</span></a>
+                <a class="nav-link @Active("SpecialRequest")" asp-controller="SpecialRequest" asp-action="Index"><i class="bi bi-stars"></i><span>Special requests</span></a>
+                <p class="nav-caption mt-4">Insights</p>
+                <a class="nav-link @Active("Report")" asp-controller="Report" asp-action="Index"><i class="bi bi-calendar-week-fill"></i><span>Weekly report</span></a>
+                <a class="nav-link @Active("Chatbot")" asp-controller="Chatbot" asp-action="Index"><i class="bi bi-chat-square-dots-fill"></i><span>Forecast assistant</span><span class="ai-pill">AI</span></a>
+            </nav>
+
+            <div class="sidebar-status">
+                <span class="status-dot"></span>
+                <div><strong>Prototype online</strong><small>In-memory storage</small></div>
+            </div>
+        </aside>
+
+        <div class="sidebar-overlay" data-sidebar-close></div>
+
+        <div class="app-stage">
+            <header class="topbar">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="icon-button d-lg-none" type="button" data-sidebar-open aria-label="Open navigation"><i class="bi bi-list"></i></button>
+                    <div>
+                        <span class="topbar-kicker">Train ticket reservation</span>
+                        <h1>@ViewData["Title"]</h1>
+                    </div>
+                </div>
+                <div class="topbar-actions">
+                    <span class="today-chip"><i class="bi bi-calendar3"></i> @DateTime.Today.ToString("ddd, d MMM")</span>
+                    <a class="btn btn-brand" asp-controller="Booking" asp-action="Create"><i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline">New booking</span></a>
+                </div>
+            </header>
+
+            <main class="page-content">
+                @if (TempData["Success"] is string success)
+                {
+                    <div class="app-alert success" role="alert"><i class="bi bi-check-circle-fill"></i><span>@success</span><button type="button" data-alert-close aria-label="Dismiss"><i class="bi bi-x"></i></button></div>
+                }
+                @if (TempData["Error"] is string error)
+                {
+                    <div class="app-alert danger" role="alert"><i class="bi bi-exclamation-octagon-fill"></i><span>@error</span><button type="button" data-alert-close aria-label="Dismiss"><i class="bi bi-x"></i></button></div>
+                }
+                @RenderBody()
+            </main>
+
+            <footer class="app-footer">
+                <span>RailFlow · EAD CW1 prototype</span>
+                <span>University of Westminster</span>
+            </footer>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

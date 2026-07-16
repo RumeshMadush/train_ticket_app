@@ -1,0 +1,28 @@
+@model Schedule
+<div asp-validation-summary="ModelOnly"></div>
+<div class="form-section">
+    <div class="form-section-title"><span class="metric-icon tone-indigo"><i class="bi bi-train-front"></i></span><div><h3>Service identity and route</h3><p>Define the train reference and its origin and destination.</p></div></div>
+    <div class="row g-3">
+        <div class="col-md-4"><label asp-for="TrainNumber" class="form-label"></label><input asp-for="TrainNumber" class="form-control" placeholder="e.g. SLR-505" /><span asp-validation-for="TrainNumber"></span></div>
+        <div class="col-md-4"><label asp-for="DepartureStation" class="form-label"></label><input asp-for="DepartureStation" class="form-control" placeholder="Origin station" /><span asp-validation-for="DepartureStation"></span></div>
+        <div class="col-md-4"><label asp-for="ArrivalStation" class="form-label"></label><input asp-for="ArrivalStation" class="form-control" placeholder="Destination station" /><span asp-validation-for="ArrivalStation"></span></div>
+    </div>
+</div>
+<div class="form-section">
+    <div class="form-section-title"><span class="metric-icon tone-teal"><i class="bi bi-clock"></i></span><div><h3>Timetable and running days</h3><p>Set departure, arrival, and every day this service runs.</p></div></div>
+    <div class="row g-3">
+        <div class="col-md-6"><label asp-for="DepartureTime" class="form-label"></label><input asp-for="DepartureTime" class="form-control" type="time" /></div>
+        <div class="col-md-6"><label asp-for="ArrivalTime" class="form-label"></label><input asp-for="ArrivalTime" class="form-control" type="time" /></div>
+        <div class="col-12"><label class="form-label">Days running</label><div class="day-picker">@foreach (var day in Enum.GetValues<DayOfWeek>()) { <label class="day-choice"><input type="checkbox" name="daysRunning" value="@day" checked="@Model.DaysRunning.Contains(day)" /><span>@day.ToString()[..3]</span></label> }</div><span asp-validation-for="DaysRunning"></span></div>
+    </div>
+</div>
+<div class="form-section">
+    <div class="form-section-title"><span class="metric-icon tone-orange"><i class="bi bi-people"></i></span><div><h3>Capacity and fares</h3><p>Record available inventory and standard ticket prices.</p></div></div>
+    <div class="row g-3">
+        <div class="col-md-3"><label asp-for="StandardSeatCount" class="form-label"></label><input asp-for="StandardSeatCount" class="form-control" type="number" min="1" /><span asp-validation-for="StandardSeatCount"></span></div>
+        <div class="col-md-3"><label asp-for="FirstClassSeatCount" class="form-label"></label><input asp-for="FirstClassSeatCount" class="form-control" type="number" min="0" /><span asp-validation-for="FirstClassSeatCount"></span></div>
+        <div class="col-md-3"><label asp-for="StandardPrice" class="form-label"></label><div class="input-group"><span class="input-group-text">Rs</span><input asp-for="StandardPrice" class="form-control" /></div><span asp-validation-for="StandardPrice"></span></div>
+        <div class="col-md-3"><label asp-for="FirstClassPrice" class="form-label"></label><div class="input-group"><span class="input-group-text">Rs</span><input asp-for="FirstClassPrice" class="form-control" /></div><span asp-validation-for="FirstClassPrice"></span></div>
+        <div class="col-12"><div class="form-check form-switch"><input asp-for="IsActive" class="form-check-input" /><label asp-for="IsActive" class="form-check-label small">Accept new bookings on this schedule</label></div></div>
+    </div>
+</div>

@@ -1,0 +1,9 @@
+@model BookingFormViewModel
+@{ ViewData["Title"] = "New booking"; }
+<div class="form-shell">
+    <div class="page-heading"><div><div class="eyebrow">New journey</div><h2>Create a booking</h2><p>Add a single trip or define a recurring travel series.</p></div></div>
+    <form asp-action="Create" method="post" class="surface-card">
+        <partial name="_BookingForm" model="Model" />
+        <div class="form-actions"><a asp-action="Index" class="btn btn-outline-secondary">Cancel</a><button type="submit" class="btn btn-brand"><i class="bi bi-check2 me-1"></i> Save booking</button></div>
+    </form>
+</div>

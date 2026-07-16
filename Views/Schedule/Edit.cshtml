@@ -1,0 +1,3 @@
+@model Schedule
+@{ ViewData["Title"] = "Edit schedule"; }
+<div class="form-shell"><div class="page-heading"><div><div class="eyebrow">@Model.TrainNumber</div><h2>Edit train schedule</h2><p>Changes affect the schedule catalogue; existing bookings retain their recorded journey details.</p></div></div><form asp-action="Edit" asp-route-id="@Model.Id" method="post" class="surface-card"><input asp-for="Id" type="hidden" /><partial name="_ScheduleForm" model="Model" /><div class="form-actions"><a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancel</a><button class="btn btn-brand"><i class="bi bi-check2 me-1"></i>Save changes</button></div></form></div>

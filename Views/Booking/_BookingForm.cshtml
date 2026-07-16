@@ -1,0 +1,44 @@
+@model BookingFormViewModel
+@{
+    var schedules = ViewBag.Schedules as List<Schedule> ?? new();
+    var seats = ViewBag.Seats as List<ScheduleSeat> ?? new();
+    var excludeBookingId = ViewBag.ExcludeBookingId as int?;
+}
+<div asp-validation-summary="ModelOnly"></div>
+<input type="hidden" data-exclude-booking value="@excludeBookingId" />
+<div class="form-section">
+    <div class="form-section-title"><span class="metric-icon tone-indigo"><i class="bi bi-person"></i></span><div><h3>Lead passenger and journey</h3><p>Select the service that will generate each dated booking occurrence.</p></div></div>
+    <div class="row g-3">
+        <div class="col-md-6"><label asp-for="PassengerName" class="form-label"></label><input asp-for="PassengerName" class="form-control" placeholder="Booking contact or lead traveller" /><span asp-validation-for="PassengerName"></span></div>
+        <div class="col-md-6"><label asp-for="ScheduleId" class="form-label"></label><select asp-for="ScheduleId" class="form-select" data-schedule-select><option value="0">Select a route and train</option>@foreach(var schedule in schedules){<option value="@schedule.Id">@schedule.TrainNumber · @schedule.DepartureStation → @schedule.ArrivalStation · @DateTime.Today.Add(schedule.DepartureTime).ToString("h:mm tt")</option>}</select><span asp-validation-for="ScheduleId"></span></div>
+        <div class="col-md-4"><label asp-for="TravelDate" class="form-label"></label><input asp-for="TravelDate" class="form-control" data-travel-date /><span asp-validation-for="TravelDate"></span></div>
+        <div class="col-md-4"><label asp-for="Status" class="form-label"></label><select asp-for="Status" asp-items="Html.GetEnumSelectList<BookingStatus>()" class="form-select"></select></div>
+    </div>
+</div>
+<div class="form-section">
+    <div class="form-section-title"><span class="metric-icon tone-teal"><i class="bi bi-arrow-repeat"></i></span><div><h3>Booking pattern</h3><p>Occurrences are generated when reports, conflicts or forecasts need them.</p></div></div>
+    <div class="choice-cards">
+        <label class="choice-card"><input asp-for="BookingType" type="radio" value="OneOff" /><span class="choice-card-content"><i class="bi bi-1-circle"></i><span><strong>One-off journey</strong><small>Exactly one dated occurrence.</small></span></span></label>
+        <label class="choice-card"><input asp-for="BookingType" type="radio" value="Recurring" /><span class="choice-card-content"><i class="bi bi-arrow-repeat"></i><span><strong>Recurring series</strong><small>Open-ended or bounded repeating occurrences.</small></span></span></label>
+    </div>
+    <div class="recurrence-panel mt-4" data-recurrence-panel hidden><div class="row g-3"><div class="col-md-4"><label asp-for="RecurrenceFrequency" class="form-label"></label><select asp-for="RecurrenceFrequency" asp-items="Html.GetEnumSelectList<RecurrenceFrequency>()" class="form-select"></select></div><div class="col-md-4"><label asp-for="RecurrenceInterval" class="form-label"></label><div class="input-group"><input asp-for="RecurrenceInterval" class="form-control" /><span class="input-group-text">cycle(s)</span></div></div><div class="col-md-4"><label asp-for="RecurrenceEndDate" class="form-label">Repeat until (optional)</label><input asp-for="RecurrenceEndDate" class="form-control" /></div><div class="col-12" data-weekly-days><label class="form-label">Travel days</label><div class="day-picker">@foreach(var day in Enum.GetValues<DayOfWeek>()){<label class="day-choice"><input type="checkbox" name="RecurrenceDays" value="@day" checked="@Model.RecurrenceDays.Contains(day)" /><span>@day.ToString()[..3]</span></label>}</div></div></div></div>
+</div>
+<div class="form-section">
+    <div class="form-section-title"><span class="metric-icon tone-orange"><i class="bi bi-people"></i></span><div><h3>Passenger seat reservations</h3><p>Every occurrence receives these passenger-seat assignments. First-date availability is shown here; the entire series is checked when saved.</p></div></div>
+    <div data-reservation-list>
+        @for(var i=0;i<Model.SeatReservations.Count;i++)
+        {
+            <div class="reservation-row" data-reservation-row>
+                <span class="reservation-number">@(i+1)</span>
+                <div><label asp-for="SeatReservations[i].PassengerName" class="form-label"></label><input asp-for="SeatReservations[i].PassengerName" class="form-control" /><span asp-validation-for="SeatReservations[i].PassengerName"></span></div>
+                <div><label asp-for="SeatReservations[i].ScheduleSeatId" class="form-label"></label><select asp-for="SeatReservations[i].ScheduleSeatId" class="form-select" data-seat-select><option value="0">Choose seat</option>@foreach(var seat in seats){<option value="@seat.Id" data-price="@(seat.SeatClass==SeatClass.FirstClass?schedules.FirstOrDefault(s=>s.Id==Model.ScheduleId)?.FirstClassPrice:schedules.FirstOrDefault(s=>s.Id==Model.ScheduleId)?.StandardPrice)">@seat.SeatNumber · @seat.SeatClass</option>}</select></div>
+                <div><label asp-for="SeatReservations[i].ReservedPrice" class="form-label"></label><div class="input-group"><span class="input-group-text">Rs</span><input asp-for="SeatReservations[i].ReservedPrice" class="form-control" data-reserved-price /></div></div>
+                <input asp-for="SeatReservations[i].Status" type="hidden" />
+                <button type="button" class="icon-button reservation-remove" data-remove-reservation aria-label="Remove reservation"><i class="bi bi-x-lg"></i></button>
+            </div>
+        }
+    </div>
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mt-3"><button type="button" class="btn btn-soft" data-add-reservation><i class="bi bi-person-plus me-1"></i>Add passenger and seat</button><div class="booking-total"><small>Per-occurrence total</small><strong>Rs <span data-booking-total>0.00</span></strong></div></div>
+    <template data-reservation-template><div class="reservation-row" data-reservation-row><span class="reservation-number">__number__</span><div><label class="form-label">Passenger</label><input name="SeatReservations[__index__].PassengerName" class="form-control" required /></div><div><label class="form-label">Seat</label><select name="SeatReservations[__index__].ScheduleSeatId" class="form-select" data-seat-select required><option value="0">Choose seat</option></select></div><div><label class="form-label">Reserved price</label><div class="input-group"><span class="input-group-text">Rs</span><input name="SeatReservations[__index__].ReservedPrice" class="form-control" data-reserved-price type="number" step="0.01" required /></div></div><input name="SeatReservations[__index__].Status" type="hidden" value="Active" /><button type="button" class="icon-button reservation-remove" data-remove-reservation aria-label="Remove reservation"><i class="bi bi-x-lg"></i></button></div></template>
+</div>
+<div class="form-section"><div class="form-check form-switch"><input asp-for="AddSpecialRequestAfterBooking" class="form-check-input" /><label asp-for="AddSpecialRequestAfterBooking" class="form-check-label small"></label></div></div>

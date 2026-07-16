@@ -1,0 +1,10 @@
+@model BookingFormViewModel
+@{ ViewData["Title"] = "Edit booking"; }
+<div class="form-shell">
+    <div class="page-heading"><div><div class="eyebrow">#BK-@Model.Id.ToString("D4")</div><h2>Edit booking</h2><p>Update the journey, recurrence rule, seat or fare.</p></div></div>
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post" class="surface-card">
+        <input asp-for="Id" type="hidden" /><input asp-for="CreatedAt" type="hidden" />
+        <partial name="_BookingForm" model="Model" />
+        <div class="form-actions"><a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancel</a><button type="submit" class="btn btn-brand"><i class="bi bi-check2 me-1"></i> Save changes</button></div>
+    </form>
+</div>

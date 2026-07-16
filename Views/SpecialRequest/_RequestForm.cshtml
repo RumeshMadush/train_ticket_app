@@ -1,0 +1,21 @@
+@model SpecialRequest
+@{ var bookings = ViewBag.Bookings as List<Booking> ?? new(); }
+<div asp-validation-summary="ModelOnly"></div>
+<div class="form-section">
+    <div class="form-section-title"><span class="metric-icon tone-indigo"><i class="bi bi-ticket-perforated"></i></span><div><h3>Linked booking</h3><p>Every request belongs to one booking record.</p></div></div>
+    <label asp-for="BookingId" class="form-label"></label>
+    <select asp-for="BookingId" class="form-select">
+        <option value="0">Select a booking</option>
+        @foreach (var booking in bookings) { <option value="@booking.Id">@booking.ReferenceNumber · @booking.PassengerName · @booking.DepartureStation → @booking.ArrivalStation</option> }
+    </select><span asp-validation-for="BookingId"></span>
+</div>
+<div class="form-section">
+    <div class="form-section-title"><span class="metric-icon tone-orange"><i class="bi bi-stars"></i></span><div><h3>Request details</h3><p>Record the assistance or preference and the date it is needed.</p></div></div>
+    <div class="row g-3">
+        <div class="col-md-6"><label asp-for="RequestType" class="form-label"></label><select asp-for="RequestType" asp-items="Html.GetEnumSelectList<RequestType>()" class="form-select"></select></div>
+        <div class="col-md-6"><label asp-for="DateNeeded" class="form-label"></label><input asp-for="DateNeeded" class="form-control" /><span asp-validation-for="DateNeeded"></span></div>
+        <div class="col-12"><label asp-for="Description" class="form-label"></label><textarea asp-for="Description" class="form-control" rows="4" placeholder="Describe what is required and any useful context"></textarea><span asp-validation-for="Description"></span></div>
+        <div class="col-md-6"><label asp-for="Status" class="form-label"></label><select asp-for="Status" asp-items="Html.GetEnumSelectList<RequestStatus>()" class="form-select"></select></div>
+        <div class="col-md-6"><label asp-for="AdditionalCost" class="form-label"></label><div class="input-group"><span class="input-group-text">Rs</span><input asp-for="AdditionalCost" class="form-control" /></div><span asp-validation-for="AdditionalCost"></span></div>
+    </div>
+</div>

@@ -1,0 +1,26 @@
+@model IReadOnlyList<Schedule>
+@{ ViewData["Title"] = "Schedules"; }
+<div class="page-heading"><div><div class="eyebrow">Service catalogue</div><h2>Train schedules</h2><p>Routes, running days, seat capacity and the fares used by bookings.</p></div><a asp-action="Create" class="btn btn-brand"><i class="bi bi-plus-lg me-1"></i>Add schedule</a></div>
+<form method="get" class="surface-card filter-bar" style="grid-template-columns:minmax(260px,1fr) auto"><div class="search-box"><i class="bi bi-search"></i><input class="form-control" name="search" value="@ViewBag.Search" placeholder="Search train number or station" /></div><button class="btn btn-soft"><i class="bi bi-search me-1"></i>Search</button></form>
+<section class="surface-card">
+    <div class="card-pad section-heading mb-0"><div><h3>@Model.Count service@(Model.Count == 1 ? "" : "s")</h3><p>Schedules linked to bookings cannot be deleted, but can be deactivated.</p></div></div>
+    @if (Model.Any())
+    {
+        <div class="table-responsive"><table class="data-table"><thead><tr><th>Train</th><th>Route</th><th>Timing</th><th>Running days</th><th>Capacity</th><th>Standard fare</th><th>Status</th><th></th></tr></thead><tbody>
+        @foreach (var schedule in Model)
+        {
+            <tr>
+                <td><div class="d-flex align-items-center gap-2"><span class="avatar"><i class="bi bi-train-front-fill"></i></span><div><div class="primary-cell">@schedule.TrainNumber</div><div class="secondary-cell">@((int)schedule.Duration.TotalHours)h @schedule.Duration.Minutes.ToString("00")m</div></div></div></td>
+                <td><div class="primary-cell">@schedule.DepartureStation</div><div class="secondary-cell"><i class="bi bi-arrow-right"></i> @schedule.ArrivalStation</div></td>
+                <td><div class="primary-cell">@DateTime.Today.Add(schedule.DepartureTime).ToString("h:mm tt")</div><div class="secondary-cell">arrives @DateTime.Today.Add(schedule.ArrivalTime).ToString("h:mm tt")</div></td>
+                <td><div class="primary-cell">@schedule.DaysRunningDisplay</div></td>
+                <td><div class="primary-cell">@schedule.TotalSeats catalogue seats</div><div class="secondary-cell">@schedule.StandardSeatCount standard · @schedule.FirstClassSeatCount first</div></td>
+                <td><div class="primary-cell">Rs @schedule.StandardPrice.ToString("N2")</div><div class="secondary-cell">First Rs @schedule.FirstClassPrice.ToString("N2")</div></td>
+                <td><span class="status-badge @(schedule.IsActive ? "status-active" : "status-inactive")">@(schedule.IsActive ? "Active" : "Inactive")</span></td>
+                <td><div class="dropdown"><button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button><ul class="dropdown-menu dropdown-menu-end shadow-sm border-0"><li><a class="dropdown-item" asp-action="Details" asp-route-id="@schedule.Id">View details</a></li><li><a class="dropdown-item" asp-action="Edit" asp-route-id="@schedule.Id">Edit schedule</a></li><li><a class="dropdown-item" asp-controller="Booking" asp-action="Create" asp-route-scheduleId="@schedule.Id">Book this train</a></li><li><hr class="dropdown-divider" /></li><li><a class="dropdown-item text-danger" asp-action="Delete" asp-route-id="@schedule.Id">Delete</a></li></ul></div></td>
+            </tr>
+        }
+        </tbody></table></div>
+    }
+    else { <div class="empty-state"><div class="empty-state-icon"><i class="bi bi-signpost-split"></i></div><h3>No schedules found</h3><p>Add a train service before creating bookings.</p></div> }
+</section>

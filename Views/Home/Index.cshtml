@@ -1,0 +1,111 @@
+@using TrainTicketApp.Models
+@{
+    ViewData["Title"] = "Overview";
+    var upcoming = ViewBag.UpcomingOccurrences as List<BookingOccurrence> ?? new();
+    var nextTrip = ViewBag.NextTrip as BookingOccurrence;
+}
+
+<section class="row g-4 mb-4">
+    <div class="col-xl-8">
+        <div class="hero-card">
+            <div>
+                <div class="eyebrow text-white-50">Your journeys, one clear view</div>
+                <h2>Plan one-off trips and recurring travel without losing track.</h2>
+                <p>Record seats, schedules, fares and assistance requests—then use your own booking patterns to forecast future travel.</p>
+            </div>
+            <div class="hero-actions">
+                <a class="btn btn-on-dark" asp-controller="Booking" asp-action="Create"><i class="bi bi-plus-circle me-1"></i> Create booking</a>
+                <a class="btn btn-ghost-dark" asp-controller="Report" asp-action="Index"><i class="bi bi-calendar-week me-1"></i> Open weekly view</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="surface-card next-trip-card h-100">
+            <div class="section-heading mb-0">
+                <div><div class="eyebrow">Up next</div><h3>Next journey</h3></div>
+                <span class="metric-icon tone-teal"><i class="bi bi-arrow-right"></i></span>
+            </div>
+            @if (nextTrip is not null)
+            {
+                <div>
+                    <div class="route-line"><span class="station-dot"></span><strong>@nextTrip.Booking.DepartureStation</strong><span class="track"></span><strong>@nextTrip.Booking.ArrivalStation</strong><span class="station-dot"></span></div>
+                    <div class="trip-meta">
+                        <div><small>Date</small><strong>@nextTrip.TravelDate.ToString("ddd d MMM")</strong></div>
+                        <div><small>Departs</small><strong>@DateTime.Today.Add(nextTrip.Booking.DepartureTime).ToString("h:mm tt")</strong></div>
+                        <div><small>Seats</small><strong>@nextTrip.SeatCount reserved</strong></div>
+                    </div>
+                </div>
+                <a asp-controller="Booking" asp-action="Details" asp-route-id="@nextTrip.Booking.Id" class="btn btn-soft w-100 mt-3">View booking details</a>
+            }
+            else
+            {
+                <div class="empty-state py-4"><p>No upcoming journey in the next 21 days.</p><a asp-controller="Booking" asp-action="Create" class="btn btn-sm btn-soft">Plan one</a></div>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="surface-card metric-card hoverable">
+            <div class="metric-top"><span>Booking records</span><span class="metric-icon tone-indigo"><i class="bi bi-ticket-perforated"></i></span></div>
+            <div class="metric-value">@ViewBag.TotalBookings</div>
+            <div class="metric-foot">@ViewBag.RecurringBookings recurring series</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="surface-card metric-card hoverable">
+            <div class="metric-top"><span>This week</span><span class="metric-icon tone-teal"><i class="bi bi-calendar-check"></i></span></div>
+            <div class="metric-value">@ViewBag.ThisWeekBookings</div>
+            <div class="metric-foot">@ViewBag.ThisWeekSeats reserved seats</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="surface-card metric-card hoverable">
+            <div class="metric-top"><span>Active schedules</span><span class="metric-icon tone-orange"><i class="bi bi-signpost-2"></i></span></div>
+            <div class="metric-value">@ViewBag.TotalSchedules</div>
+            <div class="metric-foot">Available route services</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="surface-card metric-card hoverable">
+            <div class="metric-top"><span>Pending requests</span><span class="metric-icon tone-rose"><i class="bi bi-stars"></i></span></div>
+            <div class="metric-value">@ViewBag.PendingRequests</div>
+            <div class="metric-foot">@ViewBag.TotalRequests requests in total</div>
+        </div>
+    </div>
+</section>
+
+<section class="surface-card">
+    <div class="card-pad section-heading mb-0">
+        <div><h3>Upcoming journeys</h3><p>The next booking occurrences, including recurring travel.</p></div>
+        <a asp-controller="Booking" asp-action="Index" class="btn btn-sm btn-outline-secondary">View all <i class="bi bi-arrow-right ms-1"></i></a>
+    </div>
+    @if (upcoming.Any())
+    {
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead><tr><th>Passenger</th><th>Route</th><th>Travel date</th><th>Seat</th><th>Type</th><th>Status</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var item in upcoming)
+                {
+                    var booking = item.Booking;
+                    <tr>
+                        <td><div class="d-flex align-items-center gap-2"><span class="avatar">@booking.PassengerName[..1].ToUpper()</span><div><div class="primary-cell">@booking.PassengerName</div><div class="secondary-cell">@booking.ReferenceNumber</div></div></div></td>
+                        <td><div class="primary-cell">@booking.DepartureStation</div><div class="secondary-cell"><i class="bi bi-arrow-right"></i> @booking.ArrivalStation</div></td>
+                        <td><div class="primary-cell">@item.TravelDate.ToString("ddd, d MMM")</div><div class="secondary-cell">@DateTime.Today.Add(booking.DepartureTime).ToString("h:mm tt")</div></td>
+                        <td>@item.SeatCount seat@(item.SeatCount==1?"":"s")</td>
+                        <td><span class="type-badge @(booking.BookingType == BookingKind.Recurring ? "type-recurring" : "type-oneoff")">@booking.BookingType</span></td>
+                        <td><span class="status-badge status-@booking.Status.ToString().ToLowerInvariant()">@booking.Status</span></td>
+                        <td><a asp-controller="Booking" asp-action="Details" asp-route-id="@booking.Id" class="btn btn-sm btn-outline-secondary" aria-label="View booking"><i class="bi bi-chevron-right"></i></a></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state"><div class="empty-state-icon"><i class="bi bi-calendar2-x"></i></div><h3>No upcoming journeys</h3><p>Create a booking to start planning your travel.</p></div>
+    }
+</section>

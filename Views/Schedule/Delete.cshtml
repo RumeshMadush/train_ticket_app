@@ -1,0 +1,6 @@
+@model Schedule
+@{ ViewData["Title"] = "Delete schedule"; var hasBookings = ViewBag.HasBookings is true; }
+<div class="form-shell" style="max-width:680px"><div class="page-heading"><div><div class="eyebrow text-danger">Schedule removal</div><h2>@Model.TrainNumber</h2><p>@Model.DepartureStation → @Model.ArrivalStation</p></div></div><div class="surface-card card-pad">
+@if (hasBookings) { <div class="app-alert danger"><i class="bi bi-link-45deg"></i><span>This schedule has linked bookings and cannot be deleted. Edit it and turn off “Active” instead.</span></div><div class="d-flex justify-content-end gap-2"><a asp-action="Index" class="btn btn-outline-secondary">Back</a><a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-brand">Edit schedule</a></div> }
+else { <p class="text-muted">Delete this schedule permanently? It will no longer be available when creating a booking.</p><form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="d-flex justify-content-end gap-2"><a asp-action="Index" class="btn btn-outline-secondary">Cancel</a><button class="btn btn-danger"><i class="bi bi-trash3 me-1"></i>Delete schedule</button></form> }
+</div></div>

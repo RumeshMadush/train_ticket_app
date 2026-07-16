@@ -1,0 +1,75 @@
+@model IReadOnlyList<Booking>
+@{
+    ViewData["Title"] = "Bookings";
+}
+
+<div class="page-heading">
+    <div><div class="eyebrow">Journey records</div><h2>Manage your bookings</h2><p>One-off journeys and recurring travel series in a single place.</p></div>
+    <a asp-action="Create" class="btn btn-brand"><i class="bi bi-plus-lg me-1"></i> Add booking</a>
+</div>
+
+<form method="get" class="surface-card filter-bar">
+    <div class="search-box"><i class="bi bi-search"></i><input class="form-control" type="search" name="search" value="@ViewBag.Search" placeholder="Passenger, origin or destination" /></div>
+    <select class="form-select" name="status">
+        <option value="">All statuses</option>
+        @foreach (var status in Enum.GetValues<BookingStatus>())
+        { <option value="@status" selected="@(ViewBag.Status?.ToString() == status.ToString())">@status</option> }
+    </select>
+    <select class="form-select" name="type">
+        <option value="">All types</option>
+        @foreach (var type in Enum.GetValues<BookingKind>())
+        { <option value="@type" selected="@(ViewBag.Type?.ToString() == type.ToString())">@(type == BookingKind.OneOff ? "One-off" : "Recurring")</option> }
+    </select>
+    <select class="form-select" name="sort">
+        <option value="">Recently added</option>
+        <option value="date_asc" selected="@(ViewBag.Sort == "date_asc")">Travel date ↑</option>
+        <option value="date_desc" selected="@(ViewBag.Sort == "date_desc")">Travel date ↓</option>
+        <option value="price_asc" selected="@(ViewBag.Sort == "price_asc")">Price ↑</option>
+        <option value="price_desc" selected="@(ViewBag.Sort == "price_desc")">Price ↓</option>
+    </select>
+    <button class="btn btn-soft" type="submit"><i class="bi bi-funnel me-1"></i> Apply filters</button>
+</form>
+
+<section class="surface-card">
+    <div class="card-pad section-heading mb-0">
+        <div><h3>@Model.Count booking@(Model.Count == 1 ? string.Empty : "s")</h3><p>Deleting a booking also removes its linked special requests.</p></div>
+    </div>
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead><tr><th>Passenger</th><th>Journey</th><th>First travel</th><th>Seat</th><th>Fare</th><th>Booking type</th><th>Status</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var booking in Model)
+                {
+                    <tr>
+                        <td><div class="d-flex align-items-center gap-2"><span class="avatar">@booking.PassengerName[..1].ToUpper()</span><div><div class="primary-cell">@booking.PassengerName</div><div class="secondary-cell">@booking.ReferenceNumber</div></div></div></td>
+                        <td><div class="primary-cell">@booking.DepartureStation <i class="bi bi-arrow-right mx-1 text-muted"></i> @booking.ArrivalStation</div><div class="secondary-cell">@DateTime.Today.Add(booking.DepartureTime).ToString("h:mm tt")</div></td>
+                        <td><div class="primary-cell">@booking.TravelDate.ToString("d MMM yyyy")</div><div class="secondary-cell">@booking.TravelDate.ToString("dddd")</div></td>
+                        <td><div class="primary-cell">@booking.SeatCount seat@(booking.SeatCount==1?"":"s")</div><div class="secondary-cell">@string.Join(", ", booking.SeatSelections.Take(3).Select(item => item.PassengerName))</div></td>
+                        <td class="primary-cell">Rs @booking.TotalPrice.ToString("N2")</td>
+                        <td><span class="type-badge @(booking.BookingType == BookingKind.Recurring ? "type-recurring" : "type-oneoff")"><i class="bi @(booking.BookingType == BookingKind.Recurring ? "bi-arrow-repeat" : "bi-1-circle")"></i> @(booking.BookingType == BookingKind.OneOff ? "One-off" : "Recurring")</span><div class="secondary-cell mt-1">@booking.RecurrenceSummary</div></td>
+                        <td><span class="status-badge status-@booking.Status.ToString().ToLowerInvariant()">@booking.Status</span></td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown" aria-label="Booking actions"><i class="bi bi-three-dots"></i></button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                    <li><a class="dropdown-item" asp-action="Details" asp-route-id="@booking.Id"><i class="bi bi-eye me-2"></i>View details</a></li>
+                                    <li><a class="dropdown-item" asp-action="Edit" asp-route-id="@booking.Id"><i class="bi bi-pencil me-2"></i>Edit</a></li>
+                                    <li><a class="dropdown-item" asp-controller="SpecialRequest" asp-action="Create" asp-route-bookingId="@booking.Id"><i class="bi bi-stars me-2"></i>Add request</a></li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li><a class="dropdown-item text-danger" asp-action="Delete" asp-route-id="@booking.Id"><i class="bi bi-trash3 me-2"></i>Delete</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state"><div class="empty-state-icon"><i class="bi bi-ticket-perforated"></i></div><h3>No bookings found</h3><p>Try changing the filters or create your first journey.</p><a asp-action="Create" class="btn btn-brand mt-2">Create booking</a></div>
+    }
+</section>

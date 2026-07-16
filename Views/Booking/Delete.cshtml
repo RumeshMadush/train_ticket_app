@@ -1,0 +1,11 @@
+@model Booking
+@{ ViewData["Title"] = "Delete booking"; }
+<div class="form-shell" style="max-width:680px">
+    <div class="page-heading"><div><div class="eyebrow text-danger">Destructive action</div><h2>Delete this booking?</h2><p>This action cannot be undone.</p></div></div>
+    <div class="surface-card card-pad">
+        <div class="ticket-strip mb-4"><h3>@Model.DepartureStation <i class="bi bi-arrow-right mx-2"></i> @Model.ArrivalStation</h3><p>@Model.ReferenceNumber · @Model.SeatCount seats · @Model.RecurrenceSummary</p></div>
+        @if ((int)ViewBag.RequestCount > 0)
+        { <div class="app-alert danger"><i class="bi bi-exclamation-triangle-fill"></i><span>@ViewBag.RequestCount linked special request(s) will also be deleted.</span></div> }
+        <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="d-flex justify-content-end gap-2"><a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Keep booking</a><button class="btn btn-danger" type="submit"><i class="bi bi-trash3 me-1"></i>Delete permanently</button></form>
+    </div>
+</div>
