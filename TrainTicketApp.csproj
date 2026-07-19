@@ -7,4 +7,11 @@
     <RootNamespace>TrainTicketApp</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="TrainTicketApp.Tests/**/*.cs" />
+    <Content Remove="TrainTicketApp.Tests/**/*" />
+    <None Remove="TrainTicketApp.Tests/**/*" />
+    <EmbeddedResource Remove="TrainTicketApp.Tests/**/*" />
+  </ItemGroup>
+
 </Project>
